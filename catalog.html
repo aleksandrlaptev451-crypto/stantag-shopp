@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Каталог — Stantag PRO</title>
+  <style>
+    :root {
+      --primary: #252525;
+      --accent: #ff4d00;
+      --bg: #f8f9fa;
+      --text: #1a1a1a;
+      --card: #ffffff;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+
+    header {
+      padding: 20px 0;
+      margin-bottom: 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .logo {
+      font-weight: 700;
+      font-size: 1.4rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .logo span { color: var(--accent); }
+
+    .search-block { flex: 1; min-width: 240px; }
+    .search-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      font-size: 1rem;
+      outline: none;
+    }
+    .search-input:focus { border-color: var(--accent); }
+
+    .cart-btn {
+      background: none;
+      border: 1px solid var(--primary);
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .cart-btn:hover { background: var(--primary); color: #fff; }
+
+    h1 { margin-bottom: 20px; color: var(--primary); }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 30px;
+    }
+    .filter-btn {
+      padding: 8px 14px;
+      border: 1px solid #ddd;
+      background: #fff;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .filter-btn.active, .filter-btn:hover {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 30px;
+      margin-bottom: 60px;
+    }
+
+    .product-card {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .product-img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      background: #eef2f5;
+    }
+
+    .product-title {
+      font-size: 1.1rem;
+      margin-bottom: 8px;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+
+    .product-price {
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 1.2rem;
+      margin-top: auto;
+    }
+
+    .product-specs {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #eee;
+      font-size: 0.85rem;
+      color: #555;
+      line-height: 1.4;
+    }
+    .spec-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+    .spec-label { color: #333; font-weight: 600; }
+    .spec-value { text-align: right; }
+
+    .product-description {
+      margin-top: 10px;
+      font-size: 0.85rem;
+      color: #555;
+      line-height: 1.4;
+    }
+
+    .add-to-cart-btn {
+      width: 100%;
+      padding: 12px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      margin-top: 18px;
+    }
+    .add-to-cart-btn:hover { background: #000; }
+
+    footer {
+      padding: 50px 0;
+      text-align: center;
+      color: #777;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="container" style="display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;">
+      <a href="index.html" class="logo">Stantag<span>PRO</span></a>
+
+      <div class="search-block">
+        <input type="text" id="searchInput" class="search-input" placeholder="Поиск по названию..." autocomplete="off">
+      </div>
+
+      <button class="cart-btn" onclick="location.href='cart.html'">
+        Корзина (<span id="cartCount">0</span>)
+      </button>
+    </div>
+  </header>
+
+  <main class="container">
+    <h1>Каталог товаров</h1>
+
+    <div class="filters">
+      <button class="filter-btn active" data-category="all">Все</button>
+      <button class="filter-btn" data-category="protein">Протеины</button>
+      <button class="filter-btn" data-category="creatine">Креатин</button>
+      <button class="filter-btn" data-category="bcaa">BCAA</button>
+      <button class="filter-btn" data-category="gainer">Гейнеры</button>
+      <button class="filter-btn" data-category="joint">Суставы и магний</button>
+      <button class="filter-btn" data-category="other">Другое</button>
+    </div>
+
+    <div class="products-grid" id="productsGrid">
+
+      <div class="product-card" data-name="Stantag Classic — Протеин" data-category="protein">
+        <img src="images/classic.jpg" alt="Stantag Classic" class="product-img">
+        <div>
+          <div class="product-title">Stantag Classic — Протеин</div>
+          <div class="product-price">3 500 ₽</div>
+          <div class="product-specs">
+            <div class="spec-row"><span class="spec-label">Вес:</span><span class="spec-value">900 г</span></div>
+            <div class="spec-row"><span class="spec-label">Состав:</span><span class="spec-value">Сывороточный концентрат, какао, витамины</span></div>
+          </div>
+          <div class="product-description">Классический сывороточный протеин для набора мышечной массы.</div>
+          <button class="add-to-cart-btn" onclick="addToCart('Stantag Classic — Протеин', 3500)">В корзину</button>
+        </div>
+      </div>
+
+      <div class="product-card" data-name="Stantag Night — Казеиновый протеин" data-category="protein">
+        <img src="images/night.jpg" alt="Stantag Night" class="product-img">
+        <div>
+          <div class="product-title">Stantag Night — Казеиновый протеин</div>
+          <div class="product-price">3 800 ₽</div>
+          <div class="product-specs">
+            <div class="spec-row"><span class="spec-label">Вес:</span><span class="spec-value">1000 г</span></div>
+            <div class="spec-row"><span class="spec-label">Состав:</span><span class="spec-value">Мицеллярный казеин, ванилин, подсластитель</span></div>
+          </div>
+          <div class="product-description">Казеин для медленного усвоения, идеально на ночь.</div>
+          <button class="add-to-cart-btn" onclick="addToCart('Stantag Night — Казеиновый протеин', 3800)">В корзину</button>
+        </div>
+      </div>
+
+      <div class="product-card" data-name="Stantag Plant — Веганский протеин" data-category="protein">
+        <img src="images/plant.jpg" alt="Stantag Plant" class="product-img">
+        <div>
+          <div class="product-title">Stantag Plant — Веганский протеин</div>
+          <div class="product-price">3 600 ₽</div>
+          <div class="product-specs">
+            <div class="spec-row"><span class="spec-label">Вес:</span><span class="spec-value">800 г</span></div>
+            <div class="spec-row"><span class="spec-label">Состав:</span><span class="spec-value">Гороховый, рисовый и конопляный протеины</span></div>
+          </div>
+          <div class="product-description">Веганский протеин на растительной основе.</div>
+          <button class="add-to-cart-btn" onclick="addToCart('Stantag Plant — Веганский протеин', 3600)">В корзину</button>
+        </div>
+      </div>
+
+      <div class="product-card" data-name="Stantag Pure — Изолят протеина" data-category="protein">
+        <img src="images/pure.jpg" alt="Stantag Pure" class="product-img">
+        <div>
+          <div class="product-title">Stantag Pure — Изолят протеина</div>
+          <div class="product-price">4 100 ₽</div>
+          <div class="product-specs">
+            <div class="spec-row"><span class="spec-label">Вес:</span><span class="spec-value">900 г</span></div>
+            <div class="spec-row"><span class="spec-label">Состав:</span><span class="spec-value">Изолят сывороточного протеина, ароматизаторы</span></div>
+          </div>
+          <div class="product-description">Высокоочищенный изолят с минимумом жиров и углеводов.</div>
+          <button class="add-to-cart-btn" onclick="addToCart('Stantag Pure — Изолят протеина', 4100)">В корзину</button>
+        </div>
+      </div>
+
+      <div class="product-card" data-name="Stantag Power — Креатин моногидрат" data-category="creatine">
+        <img src="images/power.jpg" alt="Stantag Power" class="product-img">
+        <div>
+          <div class="product-title">Stantag Power — Креатин моногидрат</div>
+          <div class="product-price">2 100 ₽</div>
+          <div class="product-specs">
+            <div class="spec-row"><span class="spec-label">Вес:</span><span class="spec-value">300 г</span></div>
+            <div class="spec-row"><span class="spec-label">Состав:</span><span class="spec-value">Креатин моногидрат 100%</span></div>
+          </div>
+          <div class="product-description">Креатин для роста силовых показателей и выносливости.</div>
+          <button class="add-to-cart-btn" onclick="addToCart('Stantag Power — Креатин моногидрат', 2100)">В корзину</button>
+        </div>
+      </div>
+
+      <div class="product-card" data-name="Stantag Fast — Креатин HCL" data-category="creatine">
+        <img src="images/fast.jpg" alt="Stantag Fast" class="product-img">
+        <div>
+          <div class="product-title">Stantag Fast — Креатин HCL</div>
+          <div class="product-price">2 700 ₽</div>
+          <div class="product-specs">
+            <div class="spec-row"><span class="spec-label">Вес:</span><span class="spec-value">200 г</span></div>
+            <div class="spec-row"><span class="spec-label">Состав:</span><span class="spec-value">Креатин гидрохлорид, лимонная кислота</span></div>
+          </div>
+          <div class="product-description">Креатин HCL с повышенной растворимостью.</div>
+          <button class="add-to-cart-btn" onclick="addToCart('Stantag Fast — Креатин HCL', 2700)">В корзину</button>
+        </div>
+      </div>
+
+      <div class="product-card" data-name="Stantag Recovery — BCAA порошок" data-category="bcaa">
+        <img src="images/recovery.jpg" alt="Stantag Recovery" class="product-img">
+        <div>
+          <div class="product-title">Stantag Recovery — BCAA порошок</div>
+          <div class="product-price">1 800 ₽</div>
+          <div class="product-specs">
+            <div class="spec-row"><span class="spec-label">Вес:</span><span class="spec-value">300 г</span></div>
+            <div class="spec-row"><span class="spec-label">Состав:</span><span class="spec-value">L-лейцин, L-изолейцин, L-валин (2:1:1)</span></div>
+          </div>
+          <div class="product-description">BCAA для быстрого восстановления после тренировок.</div>
+          <button class="add-to-cart-btn" onclick="addToCart('Stantag Recovery — BCAA порошок', 1800)">В корзину</button>
+        </div>
+      </div>
+
+      <div class="product-card" data-name="Stantag Hydrate — BCAA с электролитами" data-category="bcaa">
+        <img src="images/hydrate.jpg" alt="Stantag Hydrate" class="product-img">
+        <div>
+          <div class="product-title">Stantag Hydrate — BCAA с электролитами</div>
+          <div class="product-price">2 400 ₽</div>
+          <div class="product-specs">
+            <div class="spec-row"><span class="spec-label">Вес:</span><span class="spec-value">400 г</span></div>
+            <div class="spec-row"><span class="spec-label">Состав:</span><span class="spec-value">BCAA, калий, натрий, магний</span></div>
+          </div>
+          <div class="product-description">BCAA с электролитами для восполнения потерь на тренировке.</div>
+          <button class="add-to-cart-btn" onclick="addToCart('Stantag Hydrate — BCAA с электролитами', 2400)">В корзину</button>
+        </div>
+      </div>
+
+      <div class="product-card" data-name="Stantag Muscle — Гейнер" data-category="gainer">
+        <img src="images/muscle.jpg" alt="Stantag Muscle" class="product-img">
+        <div>
+          <div class="product-title">Stantag Muscle — Гейнер</div>
+          <div class="product-price">4 200 ₽</div>
+          <div class="product-specs">
+            <div class="spec-row"><span class="spec-label">Вес:</span><span class="spec-value">3000 г</span></div>
+            <div class="spec-row"><span class="spec-label">Состав:</span><span class="spec-value">Мальтодекстрин, сывороточный протеин, витамины</span></div>
+          </div>
+          <div class="product-description">Высококалорийный гейнер для набора массы.</div>
+          <button class="add-to-cart-btn" onclick="addToCart('Stantag Muscle — Гейнер', 4200)">В корзину</button>
+        </div>
+      </div>
+
+      <div class="product-card" data-name="Stantag Pump — Цитруллин малат" data-category="other">
+        <img src="images/pump.jpg" alt="Stantag Pump" class="product-img">
+        <div>
+          <div class="product-title">Stantag Pump — Цитруллин малат</div>
+          <div class="product-price">2 900 ₽</div>
+          <div class="product-specs">
+            <div class="spec-row"><span class="spec-label">Вес:</span><span class="spec-value">200 г</span></div>
+            <div class="spec-row"><span class="spec-label">Состав:</span><span class="spec-value">L-цитруллин малат 2:1, ароматизатор</span></div>
+          </div>
+          <div class="product-description">Цитруллин для пампинга и выносливости.</div>
+          <button class="add-to-cart-btn" onclick="addToCart('Stantag Pump — Цитруллин малат', 2900)">В корзину</button>
+        </div>
+      </div>
+
+      <div class="product-card" data-name="Stantag Ignite — Жиросжигатель" data-category="other">
+        <img src="images/ignite.jpg" alt="Stantag Ignite" class="product-img">
+        <div>
+          <div class="product-title">Stantag Ignite — Жиросжигатель</div>
+          <div class="product-price">2 500 ₽</div>
+          <div class="product-specs">
+            <div class="spec-row"><span class="spec-label">Вес:</span><span class="spec-value">90 капсул</span></div>
+            <div class="spec-row"><span class="spec-label">Состав:</span><span class="spec-value">Экстракт зеленого чая, кофеин, L-карнитин</span></div>
+          </div>
+          <div class="product-description">Жиросжигатель для ускорения метаболизма.</div>
+          <button class="add-to-cart-btn" onclick="addToCart('Stantag Ignite — Жиросжигатель', 2500)">В корзину</button>
+        </div>
+      </div>
+
+      <div class="product-card" data-name="Stantag Calm — Магний + релакс" data-category="joint">
+        <img src="images/calm.jpg" alt="Stantag Calm" class="product-img">
+        <div>
+          <div class="product-title">Stantag Calm — Магний + релакс</div>
+          <div class="product-price">950 ₽</div>
+          <div class="product-specs">
+            <div class="spec-row"><span class="spec-label">Вес:</span><span class="spec-value">60 таблеток</span></div>
+            <div class="spec-row"><span class="spec-label">Состав:</span><span class="spec-value">Магний цитрат, витамин B6, экстракт мелиссы</span></div>
+          </div>
+          <div class="product-description">Магний для поддержки нервной системы и мышц.</div>
+          <button class="add-to-cart-btn" onclick="addToCart('Stantag Calm — Магний + релакс', 950)">В корзину</button>
+        </div>
+      </div>
+
+      <div class="product-card" data-name="Stantag Multivit — Мультивитаминный комплекс" data-category="other">
+        <img src="images/multivit.jpg" alt="Stantag Multivit" class="product-img">
+        <div>
+          <div class="product-title">Stantag Multivit — Мультивитаминный комплекс</div>
+          <div class="product-price">1 300 ₽</div>
+          <div class="product-specs">
+            <div class="spec-row"><span class="spec-label">Вес:</span><span class="spec-value">120 таблеток</span></div>
+            <div class="spec-row"><span class="spec-label">Состав:</span><span class="spec-value">Витамины A, B, C, D, E и минералы</span></div>
+          </div>
+          <div class="product-description">Комплекс витаминов для поддержания тонуса организма.</div>
+          <button class="add-to-cart-btn" onclick="addToCart('Stantag Multivit — Мультивитаминный комплекс', 1300)">В корзину</button>
+        </div>
+      </div>
+
+      <div class="product-card" data-name="Stantag Joint — Поддержка суставов" data-category="joint">
+        <img src="images/joint.jpg" alt="Stantag Joint" class="product-img">
+        <div>
+          <div class="product-title">Stantag Joint — Поддержка суставов</div>
+          <div class="product-price">2 300 ₽</div>
+          <div class="product-specs">
+            <div class="spec-row"><span class="spec-label">Вес:</span><span class="spec-value">180 капсул</span></div>
+            <div class="spec-row"><span class="spec-label">Состав:</span><span class="spec-value">Глюкозамин, хондроитин, MSM, коллаген</span></div>
+          </div>
+          <div class="product-description">Комплекс для поддержки суставов и связок.</div>
+          <button class="add-to-cart-btn" onclick="addToCart('Stantag Joint — Поддержка суставов', 2300)">В корзину</button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2026 Stantag PRO. Все права защищены.</p>
+      <p style="margin-top: 8px; font-size: 0.9rem; color: #999;">
+        Это демонстрационный каталог. Цены и наличие могут отличаться.
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    // ---------- Корзина ----------
+    function getCart() {
+      try {
+        const cart = localStorage.getItem('stantag_cart');
+        return cart ? JSON.parse(cart) : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveCart(cart) {
+      localStorage.setItem('stantag_cart', JSON.stringify(cart));
+      updateCartCount();
+    }
+
+    function updateCartCount() {
+      const count = getCart().reduce((sum, item) => sum + (item.qty || 1), 0);
+      const el = document.getElementById('cartCount');
+      if (el) el.textContent = count;
+    }
+
+    function addToCart(name, price) {
+      const cart = getCart();
+
+      // Если товар уже в корзине — увеличиваем количество, а не дублируем
+      const existing = cart.find(function (item) {
+        return item.name === name;
+      });
+
+      if (existing) {
+        existing.qty = (existing.qty || 1) + 1;
+      } else {
+        cart.push({ name: name, price: price, qty: 1 });
+      }
+
+      saveCart(cart);
+      alert('Товар добавлен в корзину: ' + name);
+    }
+
+    // ---------- Фильтры ----------
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const cards = document.querySelectorAll('.product-card');
+
+    filterBtns.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        filterBtns.forEach(function (b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+
+        const category = btn.getAttribute('data-category');
+
+        cards.forEach(function (card) {
+          const cardCategory = card.getAttribute('data-category');
+          if (category === 'all' || cardCategory === category) {
+            card.style.display = 'flex';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      });
+    });
+
+    // ---------- Поиск ----------
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+      searchInput.addEventListener('input', function (e) {
+        const query = e.target.value.toLowerCase();
+
+        cards.forEach(function (card) {
+          const name = card.getAttribute('data-name').toLowerCase();
+          if (name.includes(query)) {
+            card.style.display = 'flex';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      });
+    }
+
+    // Инициализация счётчика
+    updateCartCount();
+  </script>
+</body>
+</html>

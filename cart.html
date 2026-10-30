@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Корзина — Stantag PRO</title>
+  <style>
+    :root {
+      --primary: #252525;
+      --accent: #ff4d00;
+      --bg: #f8f9fa;
+      --text: #1a1a1a;
+      --card-bg: #ffffff;
+      --error: #d32f2f;
+      --success: #2e7d32;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+
+    /* Header */
+    header {
+      padding: 20px 0;
+      margin-bottom: 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo {
+      font-weight: 700;
+      font-size: 1.4rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .logo span { color: var(--accent); }
+
+    .back-btn {
+      background: none;
+      border: 1px solid var(--primary);
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .back-btn:hover {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    h1, h2 { color: var(--primary); }
+    h1 { margin-bottom: 30px; }
+
+    /* Список товаров в корзине */
+    .cart-list { list-style: none; }
+
+    /* Карточка товара (строка корзины) */
+    .cart-item {
+      display: grid;
+      grid-template-columns: 350px 1fr;
+      gap: 30px;
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+      align-items: start;
+    }
+
+    @media (max-width: 768px) {
+      .cart-item { grid-template-columns: 1fr; gap: 20px; }
+      .item-img-wrapper img { width: 100%; height: auto; max-height: 320px; }
+    }
+
+    .item-img-wrapper {
+      width: 100%;
+      height: 100%;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #eee;
+    }
+    .item-img-wrapper img {
+      width: 100%;
+      height: 420px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .item-details {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .item-top { flex: 1; }
+    .item-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--primary);
+    }
+    .item-price {
+      font-size: 1.2rem;
+      color: var(--accent);
+      font-weight: 700;
+      margin-top: 10px;
+    }
+
+    .qty-control {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 20px;
+      padding-top: 15px;
+      border-top: 1px solid #eee;
+    }
+    .qty-btn {
+      width: 40px;
+      height: 40px;
+      background: #f5f5f5;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--primary);
+      transition: background 0.2s;
+    }
+    .qty-btn:hover { background: var(--primary); color: #fff; }
+
+    .qty-input {
+      width: 60px;
+      text-align: center;
+      font-size: 1rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 8px;
+      outline: none;
+    }
+    .qty-input[type="number"]::-webkit-inner-spin-button,
+    .qty-input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none; margin: 0;
+    }
+
+    .remove-btn {
+      background: transparent;
+      border: none;
+      color: #ff5252;
+      font-weight: 600;
+      cursor: pointer;
+      margin-left: auto;
+      padding: 8px 12px;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+    .remove-btn:hover { background: #ffecec; color: #b71c1c; }
+
+    /* Итого и кнопки */
+    .cart-summary {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-top: 40px;
+      padding-top: 30px;
+      border-top: 2px solid var(--primary);
+    }
+    .total-block { display: flex; flex-direction: column; gap: 8px; }
+    .total-label { font-size: 1.1rem; color: #555; }
+    .total-amount {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    .checkout-btn-wrapper { text-align: right; }
+    .checkout-btn {
+      display: inline-block;
+      padding: 18px 40px;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      transition: transform 0.2s, background 0.3s;
+    }
+    .checkout-btn:hover { background: #e64300; transform: translateY(-2px); }
+
+    /* Пустая корзина */
+    .empty-cart-cta {
+      text-align: center;
+      padding: 60px 20px;
+      background: var(--card-bg);
+      border-radius: 16px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+    }
+    .quick-catalog-btn {
+      display: inline-block;
+      padding: 16px 36px;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      transition: transform 0.2s, background 0.3s;
+      text-decoration: none;
+    }
+    .quick-catalog-btn:hover { background: #e64300; transform: translateY(-2px); }
+
+    /* Форма заказа */
+    .order-form-wrapper {
+      max-width: 500px;
+      margin: 40px auto 0;
+      background: var(--card-bg);
+      padding: 32px;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+    }
+    .form-group { margin-bottom: 18px; }
+    .form-label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: var(--primary);
+    }
+    .form-input {
+      width: 100%;
+      padding: 14px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .form-input:focus { border-color: var(--accent); }
+    .form-error {
+      color: var(--error);
+      font-size: 0.85rem;
+      margin-top: 6px;
+      display: none; /* скрыто по умолчанию */
+    }
+    .form-input.invalid { border-color: var(--error); }
+
+    .submit-btn {
+      width: 100%;
+      padding: 16px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .submit-btn:hover { background: #000; }
+
+    /* Экран подтверждения */
+    .confirmation-screen {
+      display: none; /* скрыто по умолчанию */
+      text-align: center;
+      padding: 60px 20px;
+      background: var(--card-bg);
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+      animation: fadeIn 0.4s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .confirm-icon { font-size: 64px; margin-bottom: 16px; color: var(--success); }
+    .confirm-title { font-size: 1.6rem; font-weight: 700; margin-bottom: 12px; color: var(--primary); }
+    .confirm-text { color: #555; line-height: 1.6; }
+    .go-to-catalog-btn {
+      display: inline-block;
+      margin-top: 28px;
+      padding: 14px 32px;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 8px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .go-to-catalog-btn:hover { background: #e64300; }
+
+    footer {
+      padding: 50px 0;
+      text-align: center;
+      color: #777;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="container header-inner">
+    <a href="index.html" class="logo">Stantag<span>PRO</span></a>
+    <button class="back-btn" onclick="location.href='catalog.html'">← Назад в каталог</button>
+  </div>
+</header>
+
+<main class="container">
+  <h1>Ваша корзина</h1>
+
+  <ul class="cart-list" id="cartList">
+    <!-- Сюда JS будет добавлять товары -->
+  </ul>
+
+  <!-- Блок с кнопкой «Быстро в каталог» (показывается, если корзина пуста) -->
+  <div id="emptyCartBlock" class="empty-cart-cta" style="display: none;">
+    <p style="margin-bottom: 20px; color: #555;">Корзина пока пуста — давайте это исправим!</p>
+    <a href="catalog.html" class="quick-catalog-btn">Быстро в каталог</a>
+  </div>
+
+  <!-- Итого и кнопка «Оформить» -->
+  <div class="cart-summary" id="summaryBlock" style="display: flex;">
+    <div class="total-block">
+      <span class="total-label">Итого к оплате:</span>
+      <div class="total-amount" id="totalPrice">0 ₽</div>
+    </div>
+    <div class="checkout-btn-wrapper">
+      <a href="#" class="checkout-btn" id="checkoutTrigger">Оформить заказ</a>
+    </div>
+  </div>
+
+  <!-- Форма заказа (скрыта по умолчанию) -->
+  <div class="order-form-wrapper" id="orderFormBlock" style="display: none;">
+    <h2 style="margin-bottom: 20px;">Оформление заказа</h2>
+    <form id="orderForm">
+      <div class="form-group">
+        <label class="form-label" for="customerName">Ваше имя</label>
+        <input type="text" id="customerName" class="form-input" placeholder="Иван Иванов">
+        <div class="form-error" id="nameError">Пожалуйста, укажите имя.</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="customerPhone">Ваш телефон</label>
+        <input type="tel" id="customerPhone" class="form-input" placeholder="+7 (999) 000-00-00">
+        <div class="form-error" id="phoneError">Пожалуйста, укажите корректный номер телефона.</div>
+      </div>
+      <button type="submit" class="submit-btn">Подтвердить заказ</button>
+    </form>
+  </div>
+
+  <!-- Экран подтверждения (скрыт по умолчанию) -->
+  <div class="confirmation-screen" id="confirmationScreen">
+    <span class="confirm-icon">✅</span>
+    <h2 class="confirm-title">Заказ оформлен!</h2>
+    <p class="confirm-text">
+      Спасибо за заказ. Мы свяжемся с вами в ближайшее время для подтверждения деталей.<br>
+      Номер вашего заказа будет отправлен на указанный телефон.
+    </p>
+    <a href="catalog.html" class="go-to-catalog-btn">Продолжить покупки</a>
+  </div>
+</main>
+
+<footer>
+  <div class="container">
+    Stantag © 2026. Только локальная демонстрация.
+  </div>
+</footer>
+
+<script>
+  const cartKey = 'stantag_cart';
+  const cartListEl = document.getElementById('cartList');
+  const totalPriceEl = document.getElementById('totalPrice');
+  const emptyCartBlock = document.getElementById('emptyCartBlock');
+  const summaryBlock = document.getElementById('summaryBlock');
+  const orderFormBlock = document.getElementById('orderFormBlock');
+  const confirmationScreen = document.getElementById('confirmationScreen');
+  const checkoutTrigger = document.getElementById('checkoutTrigger');
+
+  function renderCart() {
+    const stored = localStorage.getItem(cartKey);
+    const cart = stored ? JSON.parse(stored) : [];
+
+    cartListEl.innerHTML = '';
+    let total = 0;
+
+    if (cart.length === 0) {
+      cartListEl.style.display = 'none';
+      summaryBlock.style.display = 'none';
+      emptyCartBlock.style.display = 'block';
+      totalPriceEl.innerText = '0 ₽';
+      return;
+    } else {
+      cartListEl.style.display = 'block';
+      summaryBlock.style.display = 'flex';
+      emptyCartBlock.style.display = 'none';
+    }
+
+       cart.forEach((item, index) => {
+      const itemTotal = item.price * item.qty;
+      total += itemTotal;
+
+      const li = document.createElement('li');
+      li.className = 'cart-item';
+
+      li.innerHTML = `
+        <div class="item-img-wrapper">
+          <img src="images/cart-item-photo.jpg" alt="${item.name}">
+        </div>
+        <div class="item-details">
+          <div class="item-top">
+            <h3 class="item-title">${item.name}</h3>
+            <div class="item-price">${item.price.toLocaleString()} ₽ за шт.</div>
+          </div>
+          <div class="qty-control">
+            <button type="button" class="qty-btn" onclick="updateQty(${index}, -1)">−</button>
+            <input type="number" class="qty-input" value="${item.qty}" readonly>
+            <button type="button" class="qty-btn" onclick="updateQty(${index}, 1)">+</button>
+          </div>
+          <button class="remove-btn" type="button" onclick="removeItem(${index})">Удалить</button>
+        </div>
+      `;
+
+      cartListEl.appendChild(li);
+    });
+
+    totalPriceEl.innerText = total.toLocaleString() + ' ₽';
+  }
+
+  function updateQty(index, delta) {
+    const stored = localStorage.getItem(cartKey);
+    let cart = stored ? JSON.parse(stored) : [];
+
+    cart[index].qty += delta;
+
+    if (cart[index].qty <= 0) {
+      removeItem(index);
+      return;
+    }
+
+    localStorage.setItem(cartKey, JSON.stringify(cart));
+    renderCart();
+  }
+
+  function removeItem(index) {
+    const stored = localStorage.getItem(cartKey);
+    let cart = stored ? JSON.parse(stored) : [];
+    cart.splice(index, 1);
+    localStorage.setItem(cartKey, JSON.stringify(cart));
+    renderCart();
+  }
+
+  // Показать форму заказа при клике на «Оформить заказ»
+  checkoutTrigger.addEventListener('click', function (e) {
+    e.preventDefault();
+
+    const stored = localStorage.getItem(cartKey);
+    const cart = stored ? JSON.parse(stored) : [];
+
+    if (cart.length === 0) {
+      alert('Корзина пуста — сначала добавьте товары в каталоге!');
+      return;
+    }
+
+    // Скрываем список и итог, показываем форму
+    cartListEl.style.display = 'none';
+    summaryBlock.style.display = 'none';
+    orderFormBlock.style.display = 'block';
+  });
+
+  // Отправка формы с проверкой полей
+  document.getElementById('orderForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    const nameInput = document.getElementById('customerName');
+    const phoneInput = document.getElementById('customerPhone');
+    const nameError = document.getElementById('nameError');
+    const phoneError = document.getElementById('phoneError');
+
+    let valid = true;
+
+    // Проверка имени: минимум 2 символа
+    if (nameInput.value.trim().length < 2) {
+      nameError.style.display = 'block';
+      nameInput.classList.add('invalid');
+      valid = false;
+    } else {
+      nameError.style.display = 'none';
+      nameInput.classList.remove('invalid');
+    }
+
+    // Проверка телефона: цифры, скобки, дефисы, плюс — минимум 10 цифр
+    const phoneDigits = phoneInput.value.replace(/\D/g, '');
+    if (phoneDigits.length < 10) {
+      phoneError.style.display = 'block';
+      phoneInput.classList.add('invalid');
+      valid = false;
+    } else {
+      phoneError.style.display = 'none';
+      phoneInput.classList.remove('invalid');
+    }
+
+    if (!valid) return;
+
+    // Заказ «оформлен»: очищаем корзину и показываем экран подтверждения
+    localStorage.removeItem(cartKey);
+
+    orderFormBlock.style.display = 'none';
+    confirmationScreen.style.display = 'block';
+  });
+
+  // Инициализация
+  renderCart();
+</script>
+</body>
+</html>
+
